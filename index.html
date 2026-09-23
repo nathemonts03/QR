@@ -488,27 +488,80 @@
     statusPill.classList.toggle('live', !!live);
   }
 
+  // Progressively looser constraint sets. Some cameras/browsers reject the
+  // ideal width/height/facingMode combo outright (OverconstrainedError) even
+  // though a plain "give me any camera" request would succeed.
+  function constraintAttempts(){
+    return [
+      { video: { facingMode: { ideal: facingMode }, width:{ ideal:1280 }, height:{ ideal:720 } }, audio:false },
+      { video: { facingMode: { ideal: facingMode } }, audio:false },
+      { video: true, audio:false }
+    ];
+  }
+
   async function startCamera(){
     stopCamera();
     permissionCard.classList.remove('show');
     setStatus('Starting camera', false);
-    try{
-      stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { ideal: facingMode }, width:{ ideal:1280 }, height:{ ideal:720 } },
-        audio:false
-      });
-      video.srcObject = stream;
-      await video.play();
-      setStatus('Live', true);
-      hint.textContent = 'Point the camera at a QR code';
-      scanning = true;
-      tick();
-    }catch(err){
+
+    if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
       setStatus('No camera', false);
-      permissionText.textContent = (err && err.name === 'NotAllowedError')
-        ? 'Camera access was denied. Enable it in your browser settings, or scan from an image instead.'
-        : 'No camera could be reached. You can still scan from an image.';
+      permissionText.textContent = 'This browser has no camera API available. You can still scan from an image.';
       permissionCard.classList.add('show');
+      return;
+    }
+
+    let lastErr = null;
+    let gotStream = null;
+    for(const constraints of constraintAttempts()){
+      try{
+        gotStream = await navigator.mediaDevices.getUserMedia(constraints);
+        break;
+      }catch(err){
+        lastErr = err;
+        if(!err || err.name !== 'OverconstrainedError') break;
+      }
+    }
+
+    if(!gotStream){
+      setStatus('No camera', false);
+      permissionText.textContent = describeCameraError(lastErr);
+      permissionCard.classList.add('show');
+      return;
+    }
+
+    // Camera acquired — anything that goes wrong from here on (video
+    // playback, the scan loop) is a separate concern and must never be
+    // reported as a camera-access problem.
+    stream = gotStream;
+    video.srcObject = stream;
+    try{
+      await video.play();
+    }catch(e){ /* some browsers throw if play() races a pause(); safe to ignore */ }
+    setStatus('Live', true);
+    hint.textContent = 'Point the camera at a QR code';
+    scanning = true;
+    tick();
+  }
+
+  function describeCameraError(err){
+    const name = err && err.name;
+    switch(name){
+      case 'NotAllowedError':
+      case 'PermissionDeniedError':
+        return 'Camera access was denied. Enable it in your browser settings, or scan from an image instead.';
+      case 'NotFoundError':
+      case 'DevicesNotFoundError':
+        return 'No camera was found. Check your OS camera privacy settings allow this browser, or scan from an image instead.';
+      case 'NotReadableError':
+      case 'TrackStartError':
+        return 'The camera is in use by another app or tab. Close it and try again, or scan from an image instead.';
+      case 'OverconstrainedError':
+        return 'The camera could not meet the requested settings. Try flipping the camera, or scan from an image instead.';
+      case 'SecurityError':
+        return 'This page must be served over HTTPS (or localhost) for the camera to work.';
+      default:
+        return 'No camera could be reached' + (name ? ' (' + name + ')' : '') + '. You can still scan from an image.';
     }
   }
 
@@ -519,6 +572,12 @@
 
   function tick(){
     if(!scanning) return;
+    if(typeof jsQR === 'undefined'){
+      scanning = false;
+      setStatus('Scan unavailable', false);
+      hint.textContent = 'QR reader failed to load — check your connection and reload';
+      return;
+    }
     if(video.readyState === video.HAVE_ENOUGH_DATA){
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
