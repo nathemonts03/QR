@@ -449,7 +449,6 @@
 
 <div class="copied-toast" id="copied-toast">Copied to clipboard</div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.js"></script>
 <script>
 (function(){
   const video = document.getElementById('video');
@@ -482,6 +481,91 @@
   let scanning = true;
   let facingMode = 'environment';
   let lastResult = '';
+
+  // ---------- Scan engine: prefer the browser's built-in detector (no
+  // download, hardware-accelerated); fall back to the jsQR library loaded
+  // from whichever CDN mirror actually responds. ----------
+  let engine = null;       // 'native' | 'jsqr' | null (not ready yet)
+  let nativeDetector = null;
+  let detectBusy = false;  // native detect() is async; avoid overlapping calls
+
+  function loadScript(src, timeoutMs){
+    return new Promise((resolve, reject)=>{
+      const s = document.createElement('script');
+      let done = false;
+      const finish = (ok)=>{
+        if(done) return;
+        done = true;
+        clearTimeout(timer);
+        ok ? resolve() : reject(new Error('load failed: ' + src));
+      };
+      const timer = setTimeout(()=> finish(false), timeoutMs || 6000);
+      s.src = src;
+      s.onload = ()=> finish(true);
+      s.onerror = ()=> finish(false);
+      document.head.appendChild(s);
+    });
+  }
+
+  async function ensureEngine(){
+    if(engine) return engine;
+
+    if('BarcodeDetector' in window){
+      try{
+        const formats = await BarcodeDetector.getSupportedFormats();
+        if(formats.includes('qr_code')){
+          nativeDetector = new BarcodeDetector({ formats:['qr_code'] });
+          engine = 'native';
+          return engine;
+        }
+      }catch(e){ /* fall through to jsQR */ }
+    }
+
+    if(typeof jsQR !== 'undefined'){
+      engine = 'jsqr';
+      return engine;
+    }
+
+    const mirrors = [
+      'https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.js',
+      'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js',
+      'https://unpkg.com/jsqr@1.4.0/dist/jsQR.js'
+    ];
+    for(const url of mirrors){
+      try{
+        await loadScript(url);
+        if(typeof jsQR !== 'undefined'){
+          engine = 'jsqr';
+          return engine;
+        }
+      }catch(e){ /* try next mirror */ }
+    }
+
+    engine = 'none';
+    return engine;
+  }
+
+  // Decode a single video frame or image element. Returns a string or null.
+  async function decodeSource(source){
+    if(engine === 'native'){
+      try{
+        const results = await nativeDetector.detect(source);
+        return (results && results[0] && results[0].rawValue) || null;
+      }catch(e){ return null; }
+    }
+    if(engine === 'jsqr'){
+      let w, h;
+      if(source instanceof HTMLVideoElement){ w = source.videoWidth; h = source.videoHeight; }
+      else { w = source.naturalWidth || source.width; h = source.naturalHeight || source.height; }
+      if(!w || !h) return null;
+      canvas.width = w; canvas.height = h;
+      ctx.drawImage(source, 0, 0, w, h);
+      const imageData = ctx.getImageData(0, 0, w, h);
+      const code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts:'dontInvert' });
+      return (code && code.data) || null;
+    }
+    return null;
+  }
 
   function setStatus(text, live){
     statusText.textContent = text;
@@ -570,22 +654,29 @@
     if(stream){ stream.getTracks().forEach(t=>t.stop()); stream = null; }
   }
 
-  function tick(){
+  async function tick(){
     if(!scanning) return;
-    if(typeof jsQR === 'undefined'){
-      scanning = false;
-      setStatus('Scan unavailable', false);
-      hint.textContent = 'QR reader failed to load — check your connection and reload';
+
+    if(engine === null){
+      // Engine still resolving (first run) — try again next frame rather
+      // than blocking the render loop on the async setup.
+      rafId = requestAnimationFrame(tick);
       return;
     }
-    if(video.readyState === video.HAVE_ENOUGH_DATA){
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts:'dontInvert' });
-      if(code && code.data){
-        handleResult(code.data);
+    if(engine === 'none'){
+      scanning = false;
+      setStatus('Scan unavailable', false);
+      hint.textContent = 'No QR reader could be loaded (check your connection) — try reloading, or use Chrome/Edge for a built-in scanner.';
+      return;
+    }
+
+    if(!detectBusy && video.readyState === video.HAVE_ENOUGH_DATA){
+      detectBusy = true;
+      const data = await decodeSource(video);
+      detectBusy = false;
+      if(!scanning) return; // a result may have been handled while we awaited
+      if(data){
+        handleResult(data);
         return;
       }
     }
@@ -674,14 +765,15 @@
     const file = e.target.files[0];
     if(!file) return;
     const img = new Image();
-    img.onload = ()=>{
-      canvas.width = img.width;
-      canvas.height = img.height;
-      ctx.drawImage(img, 0, 0);
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const code = jsQR(imageData.data, imageData.width, imageData.height);
-      if(code && code.data){
-        handleResult(code.data);
+    img.onload = async ()=>{
+      await ensureEngine();
+      if(engine === 'none'){
+        hint.textContent = 'No QR reader is available in this browser.';
+        return;
+      }
+      const data = await decodeSource(img);
+      if(data){
+        handleResult(data);
       }else{
         hint.textContent = "Couldn't find a QR code in that image";
         setTimeout(()=> hint.textContent = 'Point the camera at a QR code', 2200);
@@ -707,6 +799,7 @@
     });
   }
 
+  ensureEngine(); // kick off in parallel — tick() waits for it via engine === null
   startCamera();
 })();
 </script>
