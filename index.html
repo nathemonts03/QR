@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+<title>Lookout — QR Scanner</title>
+<meta name="description" content="Scan any QR code and see exactly where it leads before you go there." />
+
+<!-- PWA: everything below is inlined so this single file is the whole app -->
+<link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjoiTG9va291dCBcdTIwMTQgUVIgU2Nhbm5lciIsInNob3J0X25hbWUiOiJMb29rb3V0IiwiZGVzY3JpcHRpb24iOiJTY2FuIGFueSBRUiBjb2RlIGFuZCBzZWUgZXhhY3RseSB3aGVyZSBpdCBsZWFkcyBiZWZvcmUgeW91IGdvIHRoZXJlLiIsInN0YXJ0X3VybCI6Ii4iLCJzY29wZSI6Ii4iLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsIm9yaWVudGF0aW9uIjoicG9ydHJhaXQiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiIzE0MTcxQSIsInRoZW1lX2NvbG9yIjoiIzE0MTcxQSIsImljb25zIjpbeyJzcmMiOiJkYXRhOmltYWdlL3BuZztiYXNlNjQsaVZCT1J3MEtHZ29BQUFBTlNVaEVVZ0FBQU1BQUFBREFDQVlBQUFCUzNHd0hBQUFDMGtsRVFWUjRuTzNkeTAwalFSUkEwZkdJRUN3Wk9SSXlJaVl5SWhTeThLeFl3SHdhRnJ3cTVwNno5TVlsNjExVmRiZlVQcDB2MTlzUGlQcTVlZ0d3a2dCSUV3QnBBaUJOQUtRSmdEUUJrQ1lBMGdSQW1nQklFd0JwQWlCTkFLUUpnRFFCa0NZQTBnUkFtZ0JJRXdCcEFpQk5BS1FKZ0RRQmtDWUEwZ1JBMnQzcUJiQ1hoNWVuWmQvOWZQODQvcDNMQXFqOTBPekpFWWcwQVpBMmVnUmFlZXhoZisvblkrS29hZ2NnVFFDa0NZQTB6d0Y0WS9JVzhRN1hoRnNGNFA0ODB4eUJTQk1BYVFJZ1RRQ2tDWUEwQVpBbUFOSUVRSm9BU0JNQWFRSWdUUUNrQ1lBMEFaQW1BTklFUUpvQVNCTUFhUUlnVFFDa0NZQTBBWkFtQU5JRVFKb0FTRHVkTDlmYjZrWEFLbllBMGdSQW1nQklFd0JwQWlCTkFLUUpnRFFCa0NZQTBnUkFtZ0JJRXdCcEFpQk5BS1FKZ0RRQmtDWUEwZ1JBbWdCSUV3QnBBaUJOQUtRSmdEUUJrQ1lBMGdSQW1nQklFd0JwZDZzWFVQWHc4dlRiWjgvM2p3dFcwbVlIV09CUHcvK3Z6L2s2QWhoMk5PUWltQ1dBUVI4ZGJoSE1FY0NRenc2MUNHWUlnRFFCa0NZQTBnUkFtZ0NHZlBZaGw0ZGlNd1F3NktORGJmam5DR0RZMFhBYi9sa0NXT0J2UTI3NDUvbW5lTkxzQUtRSmdEUUJrQ1lBMGdSQW1nQklFd0JwQWlCTkFLUUpnRFFCa0NZQTBnUkFtZ0JJRXdCcEFpQk5BS1FKZ0RRQmtDWUEwZ1JBbWdCSUV3QnBBaUJOQUtRSmdEUUJrQ1lBMHNiK0tmN29Ydys5R2JsbGwzbXdBNUFtQU5JRVFKb0FTQk1BYVFJZ1RRQ2tDWUEwQVpBbUFOSUVRSm9BU0JNQWFRSWdUUUNrQ1lBMEFaQW1BTklFUUpvQVNCTUFhUUlnVFFDa0NZQTBBWkEyOW1ZNHZvZWpON2I5YjdZSllQS0g5eHBHWGprQ2tTWUEwZ1JBMnRnMXdQdHpkKzFpaTJNcnJzM3NBS1FKZ0xSdGJvT3loOW90NHRQNWNyMnRYZ1NzNGdoRW1nQklFd0JwQWlCTkFLUUpnRFFCa0NZQTBnUkFtZ0JJRXdCcEFpQk5BS1FKZ0RRQmtDWUEwZ1JBbWdCSUV3QnBBaUJOQUtRSmdEUUJrQ1lBMG40Qi8rSkE2cVJkMG13QUFBQUFTVVZPUks1Q1lJST0iLCJzaXplcyI6IjE5MngxOTIiLCJ0eXBlIjoiaW1hZ2UvcG5nIiwicHVycG9zZSI6ImFueSJ9LHsic3JjIjoiZGF0YTppbWFnZS9wbmc7YmFzZTY0LGlWQk9SdzBLR2dvQUFBQU5TVWhFVWdBQUFnQUFBQUlBQ0FZQUFBRDBlTlQ2QUFBSmgwbEVRVlI0bk8zZHk0M2lRQlJBMFdaRUNFZ2dJaUVqWWlJalFpRUxadDh6cmVuUDJJWHJuck51bWJmeXV5NjE3TjNoZUg2K0FRQXB2MFlQQUFDc1R3QUFRSkFBQUlBZ0FRQUFRUUlBQUlJRUFBQUVDUUFBQ0JJQUFCQWtBQUFnU0FBQVFKQUFBSUFnQVFBQVFRSUFBSUlFQUFBRUNRQUFDQklBQUJBa0FBQWdTQUFBUUpBQUFJQWdBUUFBUVFJQUFJSUVBQUFFQ1FBQUNCSUFBQkFrQUFBZ1NBQUFRSkFBQUlBZ0FRQUFRUUlBQUlJRUFBQUVDUUFBQ0JJQUFCQWtBQUFnU0FBQVFKQUFBSUFnQVFBQVFRSUFBSUlFQUFBRUNRQUFDQklBQUJBa0FBQWdTQUFBUUpBQUFJQWdBUUFBUVFJQUFJSUVBQUFFQ1FBQUNCSUFBQkFrQUFBZ1NBQUFRSkFBQUlBZ0FRQUFRUUlBQUlJRUFBQUVDUUFBQ0JJQUFCQWtBQUFnU0FBQVFKQUFBSUFnQVFBQVFRSUFBSUlFQUFBRUNRQUFDQklBQUJBa0FBQWdTQUFBUUpBQUFJQWdBUUFBUVFJQUFJTDJvd2VZd2VWeEd6M0NGTzZuNitnUllCWHVHZitIZThiUE9BRUFnQ0FCQUFCQkFnQUFnZ1FBQUFRSkFBQUlFZ0FBRUNRQUFDQklBQUJBa0FBQWdDQUJBQUJCWGdYOEFhL3FCSGh0WDdsUGUyM3duNXdBQUVDUUFBQ0FJQUVBQUVFQ0FBQ0NCQUFBQkFrQUFBZ1NBQUFRSkFBQUlFZ0FBRUNRQUFDQUlBRUFBRUcrQlRDQWQxSkRtM3ZBMy9rR3k3cWNBQUJBa0FBQWdDQUJBQUJCQWdBQWdnUUFBQVFKQUFBSUVnQUFFQ1FBQUNCSUFBQkFrQUFBZ0NBQkFBQkJBZ0FBZ2dRQUFBUUpBQUFJRWdBQUVDUUFBQ0JJQUFCQWtBQUFnQ0FCQUFCQkFnQUFnZ1FBQUFRSkFBQUlFZ0FBRUNRQUFDQklBQUJBa0FBQWdDQUJBQUJCQWdBQWdnUUFBQVFKQUFBSUVnQUFFQ1FBQUNCSUFBQkFrQUFBZ0NBQkFBQkJBZ0FBZ2dRQUFBUUpBQUFJRWdBQUVDUUFBQ0JJQUFCQWtBQUFnQ0FCQUFCQkFnQUFnZ1FBQUFRSkFBQUlFZ0FBRUNRQUFDQklBQUJBa0FBQWdDQUJBQUJCQWdBQWdnUUFBQVFKQUFBSUVnQUFFQ1FBQUNCSUFBQkFrQUFBZ0NBQkFBQkJBZ0FBZ2dRQUFBUUpBQUFJRWdBQUVDUUFBQ0JJQUFCQWtBQUFnQ0FCQUFCQkFnQUFnZ1FBQUFUdERzZnpjL1FRQU1DNm5BQUFRSkFBQUlBZ0FRQUFRUUlBQUlJRUFBQUVDUUFBQ0JJQUFCQWtBQUFnU0FBQVFKQUFBSUFnQVFBQVFRSUFBSUlFQUFBRUNRQUFDQklBQUJBa0FBQWdTQUFBUUpBQUFJQWdBUUFBUVFJQUFJSUVBQUFFQ1FBQUNCSUFBQkFrQUFBZ1NBQUFRSkFBQUlBZ0FRQUFRUUlBQUlJRUFBQUVDUUFBQ0JJQUFCQWtBQUFnU0FBQVFKQUFBSUFnQVFBQVFRSUFBSUlFQUFBRUNRQUFDQklBQUJBa0FBQWdTQUFBUUpBQUFJQWdBUUFBUVFJQUFJSUVBQUFFQ1FBQUNCSUFBQkFrQUFBZ1NBQUFRSkFBQUlBZ0FRQUFRUUlBQUlJRUFBQUVDUUFBQ0JJQUFCQWtBQUFnU0FBQVFKQUFBSUFnQVFBQVFRSUFBSUlFQUFBRUNRQUFDQklBQUJBa0FBQWdTQUFBUUpBQUFJQWdBUUFBUVFJQUFJSUVBQUFFQ1FBQUNCSUFBQkFrQUFBZ1NBQUFRSkFBQUlBZ0FRQUFRZnZSQXdEcnVUeHUvL3liKyttNndpVEFhTHZEOGZ3Y1BRU3dyTThzL3ZlRUFNeE5BTURFdnJQNDN4TUNNQ2NCQUJQNkg0di9QU0VBYy9GUGdEQ1pKWmIva3RjRnhoQUFNSkdsbDdRSWdIa0lBSmpFV3N0WkJNQWNCQUJNWU8ybExBSmcrd1FBQUFRSkFOaTRVVS9qVGdGZzJ3UUFBQVFKQU5pdzBVL2hvMzhmK0Q0QkFBQkJBZ0EyNmxXZXZsOWxEdUJyQkFBQUJBa0FBQWdTQUFBUUpBQUFJRWdBQUVDUUFBQ0FJQUVBQUVFQ0FBQ0NCQUJzMVAxMEhUM0MyOXZiNjh3QmZJMEFBSUFnQVFBYk52cnBlL1R2QTk4bkFBQWdTQURBeG8xNkN2ZjBEOXNtQUFBZ1NBREFCTlorR3ZmMEQ5c25BR0FTYXkxbHl4L21JQUJnSWtzdlo4c2Y1aUVBWURKTExXbkxIK2F5T3h6UHo5RkRBTXU0UEc0L3ZvYkZEM01TQUJEd25SQ3crR0Z1QWdCQ1BoTUNGajgwQ0FBQUNQSlBnQUFRSkFBQUlFZ0FBRUNRQUFDQUlBRUFBRUVDQUFDQ0JBQUFCQWtBQUFnU0FBQVFKQUFBSUVnQUFFQ1FBQUNBSUFFQUFFRUNBQUNDQkFBQUJBa0FBQWdTQUFBUUpBQUFJRWdBQUVDUUFBQ0FJQUVBQUVFQ0FBQ0NCQUFBQkFrQUFBZ1NBQUFRSkFBQUlFZ0FBRUNRQUFDQUlBRUFBRUVDQUFDQ0JBQUFCQWtBQUFnU0FBQVFKQUFBSUVnQUFFQ1FBQUNBSUFFQUFFRUNBQUNDQkFBQUJBa0FBQWdTQUFBUUpBQUFJRWdBQUVDUUFBQ0FJQUVBQUVFQ0FBQ0NCQUFBQkFrQUFBZ1NBQUFRSkFBQUlFZ0FBRUNRQUFDQUlBRUFBRUVDQUFDQ0JBQUFCQWtBQUFnU0FBQVFKQUFBSUVnQUFFQ1FBQUNBSUFFQUFFRUNBQUNDQkFBQUJBa0FBQWdTQUFBUUpBQUFJRWdBQUVDUUFBQ0FJQUVBQUVFQ0FBQ0NCQUFBQkFrQUFBZ1NBQUFRSkFBQUlFZ0FBRURRZnZRQXIrcnl1QzEyN2Z2cHV0aTFBYmJLZlhkZFRnQUFJRWdBQUVDUUFBQ0FJQUVBQUVFQ0FBQ0NCQUFBQkFrQUFBZ1NBQUFRSkFBQUlFZ0FBRUNRQUFDQUlBRUFBRUVDQUFDQ0JBQUFCQWtBQUFnU0FBQVFKQUFBSUVnQUFFQ1FBQUNBSUFFQUFFRUNBQUNDQkFBQUJBa0FBQWdTQUFBUUpBQUFJRWdBQUVDUUFBQ0FJQUVBQUVFQ0FBQ0NCQUFBQkFrQUFBZ1NBQUFRSkFBQUlFZ0FBRUNRQUFDQUlBRUFBRUVDQUFDQ0JBQUFCQWtBQUFnU0FBQVFKQUFBSUVnQUFFQ1FBQUNBSUFFQUFFRUNBQUNDQkFBQUJBa0FBQWdTQUFBUUpBQUFJRWdBQUVDUUFBQ0FJQUVBQUVFQ0FBQ0NCQUFBQkFrQUFBZ1NBQUFRSkFBQUlFZ0FBRUNRQUFDQUlBRUFBRUVDQUFDQ0JBQUFCQWtBQUFnU0FBQVFKQUFBSUVnQUFFQ1FBQUNBSUFFQUFFRUNBQUNDOXFNSEtMbzhicU5IZUVuMzAzWDBDTEFLOXdCZWdSTUFBQWdTQUFBUUpBQUFJRWdBQUVDUUFBQ0FJQUVBQUVFQ0FBQ0NCQUFBQkFrQUFBZ1NBQUFRSkFBQUlNaTNBRDd3bGZmU2U2ODN3UHA4UCtSbm5BQUFRSkFBQUlBZ0FRQUFRUUlBQUlJRUFBQUVDUUFBQ0JJQUFCQWtBQUFnU0FBQVFKQUFBSUNnM2VGNGZvNGVBZ0JZbHhNQUFBZ1NBQUFRSkFBQUlFZ0FBRUNRQUFDQUlBRUFBRUVDQUFDQ0JBQUFCQWtBQUFnU0FBQVFKQUFBSUVnQUFFQ1FBQUNBSUFFQUFFRUNBQUNDQkFBQUJBa0FBQWdTQUFBUUpBQUFJRWdBQUVDUUFBQ0FJQUVBQUVFQ0FBQ0NCQUFBQkFrQUFBZ1NBQUFRSkFBQUlFZ0FBRUNRQUFDQUlBRUFBRUVDQUFDQ0JBQUFCQWtBQUFnU0FBQVFKQUFBSUVnQUFFQ1FBQUNBSUFFQUFFRUNBQUNDQkFBQUJBa0FBQWdTQUFBUUpBQUFJRWdBQUVDUUFBQ0FJQUVBQUVFQ0FBQ0NCQUFBQkFrQUFBZ1NBQUFRSkFBQUlFZ0FBRUNRQUFDQUlBRUFBRUVDQUFDQ0JBQUFCQWtBQUFnU0FBQVFKQUFBSUVnQUFFQ1FBQUNBSUFFQUFFRUNBQUNDQkFBQUJBa0FBQWdTQUFBUUpBQUFJRWdBQUVEUWIxTE9iYTNsNFM3UkFBQUFBRWxGVGtTdVFtQ0MiLCJzaXplcyI6IjUxMng1MTIiLCJ0eXBlIjoiaW1hZ2UvcG5nIiwicHVycG9zZSI6ImFueSJ9LHsic3JjIjoiZGF0YTppbWFnZS9wbmc7YmFzZTY0LGlWQk9SdzBLR2dvQUFBQU5TVWhFVWdBQUFnQUFBQUlBQ0FZQUFBRDBlTlQ2QUFBSmgwbEVRVlI0bk8zZHk0M2lRQlJBMFdaRUNFZ2dJaUVqWWlJalFpRUxaakc3bnBHbWYzYmh1dWVzVytadDZIZGRRdmJ1Y0R3LzN3Q0FsRitqQndBQTFpY0FBQ0JJQUFCQWtBQUFnQ0FCQUFCQkFnQUFnZ1FBQUFRSkFBQUlFZ0FBRUNRQUFDQklBQUJBa0FBQWdDQUJBQUJCQWdBQWdnUUFBQVFKQUFBSUVnQUFFQ1FBQUNCSUFBQkFrQUFBZ0NBQkFBQkJBZ0FBZ2dRQUFBUUpBQUFJRWdBQUVDUUFBQ0JJQUFCQWtBQUFnQ0FCQUFCQkFnQUFnZ1FBQUFRSkFBQUlFZ0FBRUNRQUFDQklBQUJBa0FBQWdDQUJBQUJCQWdBQWdnUUFBQVFKQUFBSUVnQUFFQ1FBQUNCSUFBQkFrQUFBZ0NBQkFBQkJBZ0FBZ2dRQUFBUUpBQUFJRWdBQUVDUUFBQ0JJQUFCQWtBQUFnQ0FCQUFCQkFnQUFnZ1FBQUFRSkFBQUlFZ0FBRUNRQUFDQklBQUJBa0FBQWdDQUJBQUJCQWdBQWdnUUFBQVFKQUFBSUVnQUFFQ1FBQUNCSUFBQkFrQUFBZ0NBQkFBQkJBZ0FBZ2dRQUFBUUpBQUFJRWdBQUVDUUFBQ0JJQUFCQWtBQUFnQ0FCQUFCQkFnQUFnZ1FBQUFRSkFBQUlFZ0FBRUNRQUFDQklBQUJBa0FBQWdDQUJBQUJCQWdBQWdnUUFBQVFKQUFBSUVnQUFFQ1FBQUNCSUFBQkFrQUFBZ0NBQkFBQkJBZ0FBZ2dRQUFBUUpBQUFJRWdBQUVDUUFBQ0JJQUFCQWtBQUFnS0Q5NkFING5zdmpObnFFS2R4UDE5RWpzRExmblovaHU3TmRUZ0FBSUVnQUFFQ1FBQUNBSUFFQUFFRUNBQUNDQkFBQUJBa0FBQWdTQUFBUUpBQUFJRWdBQUVDUVJ3Ry9JSThvQmJiaU0vK3ZQRGI0dFRnQkFJQWdBUUFBUVFJQUFJSUVBQUFFQ1FBQUNCSUFBQkFrQUFBZ1NBQUFRSkFBQUlBZ0FRQUFRUUlBQUlLOEN5REdzN2poRDkrRmYvTXVrZzRuQUFBUUpBQUFJRWdBQUVDUUFBQ0FJQUVBQUVFQ0FBQ0NCQUFBQkFrQUFBZ1NBQUFRSkFBQUlFZ0FBRUNRQUFDQUlBRUFBRUVDQUFDQ0JBQUFCQWtBQUFnU0FBQVFKQUFBSUVnQUFFQ1FBQUNBSUFFQUFFRUNBQUNDQkFBQUJBa0FBQWdTQUFBUUpBQUFJRWdBQUVDUUFBQ0FJQUVBQUVFQ0FBQ0NCQUFBQkFrQUFBZ1NBQUFRSkFBQUlFZ0FBRUNRQUFDQUlBRUFBRUVDQUFDQ0JBQUFCQWtBQUFnU0FBQVFKQUFBSUVnQUFFQ1FBQUNBSUFFQUFFRUNBQUNDQkFBQUJBa0FBQWdTQUFBUUpBQUFJRWdBQUVDUUFBQ0FJQUVBQUVFQ0FBQ0NCQUFBQkFrQUFBZ1NBQUFRSkFBQUlFZ0FBRUNRQUFDQUlBRUFBRUVDQUFDQ0JBQUFCQWtBQUFnU0FBQVFKQUFBSUVnQUFFQ1FBQUNBSUFFQUFFRzd3L0g4SEQwRUFMQXVKd0FBRUNRQUFDQklBQUJBa0FBQWdDQUJBQUJCQWdBQWdnUUFBQVFKQUFBSUVnQUFFQ1FBQUNCSUFBQkFrQUFBZ0NBQkFBQkJBZ0FBZ2dRQUFBUUpBQUFJRWdBQUVDUUFBQ0JJQUFCQWtBQUFnQ0FCQUFCQkFnQUFnZ1FBQUFRSkFBQUlFZ0FBRUNRQUFDQklBQUJBa0FBQWdDQUJBQUJCQWdBQWdnUUFBQVFKQUFBSUVnQUFFQ1FBQUNCSUFBQkFrQUFBZ0NBQkFBQkJBZ0FBZ2dRQUFBUUpBQUFJRWdBQUVDUUFBQ0JJQUFCQWtBQUFnS0Q5NkFHQTlWd2V0Ly8remYxMFhXRVNZTFRkNFhoK2poNENXTlpIRnY5N1FnRG1KZ0JnWWw5Wi9POEpBWmlUQUlBSi9jVGlmMDhJd0Z6OENCQW1zOFR5WC9LNndCZ0NBQ2F5OUpJV0FUQVBBUUNUV0dzNWl3Q1lnd0NBQ2F5OWxFVUFiSjhBQUlBZ0FRQWJOK3B1M0NrQWJKc0FBSUFnQVFBYk52b3VmUFRuQTE4bkFBQWdTQURBUnIzSzNmZXJ6QUY4amdBQWdDQUJBQUJCQWdBQWdnUUFBQVFKQUFBSUVnQUFFQ1FBQUNCSUFBQkFrQUNBamJxZnJxTkhlSHQ3ZTUwNWdNOFJBQUFRSkFCZ3cwYmZmWS8rZk9EckJBQUFCQWtBMkxoUmQrSHUvbUhiQkFBQUJBa0FtTURhZCtQdS9tSDdCQUJNWXEybGJQbkRIQVFBVEdUcDVXejV3endFQUV4bXFTVnQrY05jZG9maitUbDZDR0FabDhmdDI5ZXcrR0ZPQWdBQ3ZoSUNGai9NVFFCQXlFZEN3T0tIQmdFQUFFRitCQWdBUVFJQUFJSUVBQUFFQ1FBQUNCSUFBQkFrQUFBZ1NBQUFRSkFBQUlBZ0FRQUFRUUlBQUlJRUFBQUVDUUFBQ0JJQUFCQWtBQUFnU0FBQVFKQUFBSUFnQVFBQVFRSUFBSUlFQUFBRUNRQUFDQklBQUJBa0FBQWdTQUFBUUpBQUFJQWdBUUFBUVFJQUFJSUVBQUFFQ1FBQUNCSUFBQkFrQUFBZ1NBQUFRSkFBQUlBZ0FRQUFRUUlBQUlJRUFBQUVDUUFBQ0JJQUFCQWtBQUFnU0FBQVFKQUFBSUFnQVFBQVFRSUFBSUlFQUFBRUNRQUFDTnFQSG9DL1hSNjN4YTU5UDEwWHV6YXdmZjcvZERnQkFJQWdBUUFBUVFJQUFJSUVBQUFFQ1FBQUNCSUFBQkFrQUFBZ1NBQUFRSkFBQUlBZ0FRQUFRUUlBQUlJRUFBQUVDUUFBQ0JJQUFCQWtBQUFnU0FBQVFKQUFBSUFnQVFBQVFRSUFBSUlFQUFBRUNRQUFDQklBQUJBa0FBQWdTQUFBUUpBQUFJQWdBUUFBUVFJQUFJSUVBQUFFQ1FBQUNCSUFBQkFrQUFBZ1NBQUFRSkFBQUlBZ0FRQUFRUUlBQUlJRUFBQUVDUUFBQ0JJQUFCQWtBQUFnU0FBQVFKQUFBSUFnQVFBQVFRSUFBSUlFQUFBRUNRQUFDQklBQUJBa0FBQWdTQUFBUUpBQUFJQWdBUUFBUVFJQUFJSUVBQUFFQ1FBQUNCSUFBQkFrQUFBZ1NBQUFRSkFBQUlBZ0FRQUFRUUlBQUlJRUFBQUVDUUFBQ0JJQUFCQWtBQUFnU0FBQVFKQUFBSUFnQVFBQVFRSUFBSUlFQUFBRUNRQUFDTnFQSG9CMVhSNjMwU084cFB2cE9ub0VWdWE3UUowVEFBQUlFZ0FBRUNRQUFDQklBQUJBa0FBQWdDQUJBQUJCQWdBQWdnUUFBQVFKQUFBSUVnQUFFQ1FBQUNESXV3QmUwR2VlUys5NTVzQkkzcU94WFU0QUFDQklBQUJBa0FBQWdDQUJBQUJCQWdBQWdnUUFBQVFKQUFBSUVnQUFFQ1FBQUNCSUFBQkEwTzV3UEQ5SER3RUFyTXNKQUFBRUNRQUFDQklBQUJBa0FBQWdTQUFBUUpBQUFJQWdBUUFBUVFJQUFJSUVBQUFFQ1FBQUNCSUFBQkFrQUFBZ1NBQUFRSkFBQUlBZ0FRQUFRUUlBQUlJRUFBQUVDUUFBQ0JJQUFCQWtBQUFnU0FBQVFKQUFBSUFnQVFBQVFRSUFBSUlFQUFBRUNRQUFDQklBQUJBa0FBQWdTQUFBUUpBQUFJQWdBUUFBUVFJQUFJSUVBQUFFQ1FBQUNCSUFBQkFrQUFBZ1NBQUFRSkFBQUlBZ0FRQUFRUUlBQUlJRUFBQUVDUUFBQ0JJQUFCQWtBQUFnU0FBQVFKQUFBSUFnQVFBQVFRSUFBSUlFQUFBRUNRQUFDQklBQUJBa0FBQWdTQUFBUUpBQUFJQWdBUUFBUVFJQUFJSUVBQUFFQ1FBQUNCSUFBQkFrQUFBZ1NBQUFRSkFBQUlBZ0FRQUFRUUlBQUlJRUFBQUVDUUFBQ0JJQUFCQWtBQUFnU0FBQVFKQUFBSUFnQVFBQVFRSUFBSUlFQUFBRUNRQUFDQklBQUJBa0FBQWdTQUFBUUpBQUFJQWdBUUFBUVFJQUFJSUVBQUFFQ1FBQUNCSUFBQkFrQUFBZ1NBQUFRSkFBQUlBZ0FRQUFRUUlBQUlJRUFBQUVDUUFBQ0JJQUFCQWtBQUFnU0FBQVFKQUFBSUFnQVFBQVFRSUFBSUlFQUFBRUNRQUFDQklBQUJEMEcxTE9iYTBocjU5UEFBQUFBRWxGVGtTdVFtQ0MiLCJzaXplcyI6IjUxMng1MTIiLCJ0eXBlIjoiaW1hZ2UvcG5nIiwicHVycG9zZSI6Im1hc2thYmxlIn1dfQ==" />
+<meta name="theme-color" content="#14171A" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Lookout" />
+<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAYAAAA9zQYyAAACsElEQVR4nO3d3U0bQRhA0TiiBEtGroSOqImOKIUunHdIMIj5ca7PefSLR+ur0bdjafdwPJ0vvyDi9+4FwEiCJkXQpAiaFEGTImhSBE2KoEkRNCmCJkXQpAiaFEGTImhSBE2KoEkRNCmCJkXQpAiaFEGTImhSBE3Kw+4FsNbT28vy73x9fF72XcuDrl9Q9jJykCJoUpaMHDvGDG7H+99/5ghohyZF0KQImhTn0HdmxRHmznummwjaOTGjGDlIETQpgiZF0KQImhRBkyJoUgRNiqBJETQpgiZF0KQImhRBkyJoUgRNiqBJETQpgiZF0KQImhRBkyJoUg7H0/myexEwih2aFEGTImhSBE2KoEkRNCmCJkXQpAiaFEGTImhSBE2KoEkRNCmCJkXQpAiaFEGTImhSBE2KoEkRNCmCJkXQpAiaFEGT8rB7AXVPby8fPnt9fN6wkvtgh57obzF/9jk/J+hJrkUr6jkEPcFXYxX1eIIe7LuRinosQZMiaFIETYqgSRH0YN/908SfLGMJeoKvRirm8QQ9ybVYxTyHoCf6V7Rinsd7CkmxQ5MiaFIETYqgSRE0KYImRdCkCJoUQZMiaFIETYqgSRE0KYImRdCkCJoUQZMiaFIETYqgSRE0KYImRdCkCJoUQZMiaFKmv6fw2jtEPOetZffvbYcmRdCkCJoUQZMiaFIETYqgSRE0KYImRdCkCJoUQZMiaFIETYqgSRE0KYImRdCkCJoUQZMiaFIETYqgSZn+XA5uy7XnZvzvtge94gJ7mM39MHKQImhSBE3K9Bn6/fxavynho5X3MHZoUgRNyvZjO9aqH2EejqfzZfciYBQjBymCJkXQpAiaFEGTImhSBE2KoEkRNCmCJkXQpAiaFEGTImhSBE2KoEkRNCmCJkXQpAiaFEGTImhS/gCemkDSfyqWcQAAAABJRU5ErkJggg==" />
+<link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAYAAABS3GwHAAAC0klEQVR4nO3dy00jQRRA0fGIECwZORIyIiYyIhSy8KxYwHwaFrwq5p6z9MYl611VdbfUPp0v19sPiPq5egGwkgBIEwBpAiBNAKQJgDQBkCYA0gRAmgBIEwBpAiBNAKQJgDQBkCYA0gRAmgBIEwBpAiBNAKQJgDQBkCYA0gRA2t3qBbCXh5enZd/9fP84/p3LAqj90OzJEYg0AZA2egRaeexhf+/nY+KoagcgTQCkCYA0zwF4Y/IW8Q7XhFsF4P480xyBSBMAaQIgTQCkCYA0AZAmANIEQJoASBMAaQIgTQCkCYA0AZAmANIEQJoASBMAaQIgTQCkCYA0AZAmANIEQJoASDudL9fb6kXAKnYA0gRAmgBIEwBpAiBNAKQJgDQBkCYA0gRAmgBIEwBpAiBNAKQJgDQBkCYA0gRAmgBIEwBpAiBNAKQJgDQBkCYA0gRAmgBIEwBpd6sXUPXw8vTbZ8/3jwtW0mYHWOBPw/+vz/k6Ahh2NOQimCWAQR8dbhHMEcCQzw61CGYIgDQBkCYA0gRAmgCGfPYhl4diMwQw6KNDbfjnCGDY0XAb/lkCWOBvQ2745/mneNLsAKQJgDQBkCYA0gRAmgBIEwBpAiBNAKQJgDQBkCYA0gRAmgBIEwBpAiBNAKQJgDQBkCYA0gRAmgBIEwBpAiBNAKQJgDQBkCYA0sb+Kf7oXw+9Gblll3mwA5AmANIEQJoASBMAaQIgTQCkCYA0AZAmANIEQJoASBMAaQIgTQCkCYA0AZAmANIEQJoASBMAaQIgTQCkCYA0AZA29mY4voejN7b9b7YJYPKH9xpGXjkCkSYA0gRA2tg1wPtzd+1ii2Mrrs3sAKQJgLRtboOyh9ot4tP5cr2tXgSs4ghEmgBIEwBpAiBNAKQJgDQBkCYA0gRAmgBIEwBpAiBNAKQJgDQBkCYA0gRAmgBIEwBpAiBNAKQJgDQBkCYA0n4B/+JA6qRd0mwAAAAASUVORK5CYII=" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --ink:#14171A;
+    --ink-soft:#1B1F23;
+    --line:#262B2F;
+    --paper:#F2F4F1;
+    --slate:#8A939B;
+    --phosphor:#4CFFB3;
+    --phosphor-dim:rgba(76,255,179,0.28);
+    --amber:#FFB454;
+    --danger:#FF6B6B;
+    --radius:18px;
+    --safe-t:env(safe-area-inset-top, 0px);
+    --safe-b:env(safe-area-inset-bottom, 0px);
+    box-sizing:border-box;
+  }
+  *{box-sizing:inherit; margin:0; padding:0;}
+  html,body{
+    height:100%;
+    background:var(--ink);
+    color:var(--paper);
+    font-family:'Space Grotesk', system-ui, sans-serif;
+    overscroll-behavior:none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  body{
+    display:flex;
+    flex-direction:column;
+    min-height:100%;
+    padding-top:var(--safe-t);
+    padding-bottom:var(--safe-b);
+  }
+
+  /* ---------- Top bar ---------- */
+  header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:18px 20px 14px;
+    position:relative;
+    z-index:5;
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-weight:600;
+    font-size:17px;
+    letter-spacing:-0.01em;
+  }
+  .brand .mark{
+    width:22px; height:22px;
+    position:relative;
+    flex:none;
+  }
+  .brand .mark span{
+    position:absolute;
+    width:7px; height:7px;
+    border:2px solid var(--phosphor);
+  }
+  .brand .mark .tl{top:0;left:0;border-right:0;border-bottom:0;}
+  .brand .mark .tr{top:0;right:0;border-left:0;border-bottom:0;}
+  .brand .mark .bl{bottom:0;left:0;border-right:0;border-top:0;}
+  .brand .mark .br{bottom:0;right:0;border-left:0;border-top:0;}
+
+  .status-pill{
+    display:flex;
+    align-items:center;
+    gap:7px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:11.5px;
+    color:var(--slate);
+    padding:7px 12px;
+    border:1px solid var(--line);
+    border-radius:100px;
+    background:rgba(255,255,255,0.02);
+  }
+  .status-pill .dot{
+    width:6px;height:6px;border-radius:50%;
+    background:var(--slate);
+    transition:background .3s;
+  }
+  .status-pill.live .dot{
+    background:var(--phosphor);
+    box-shadow:0 0 8px var(--phosphor);
+    animation:pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes pulse{ 0%,100%{opacity:1} 50%{opacity:.45} }
+
+  /* ---------- Scanner stage ---------- */
+  .stage{
+    position:relative;
+    flex:1;
+    margin:4px 16px 16px;
+    border-radius:28px;
+    overflow:hidden;
+    background:#0B0D0E;
+    border:1px solid var(--line);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-height:0;
+  }
+  #video{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    filter:saturate(1.05) contrast(1.03);
+  }
+  canvas#frame{ display:none; }
+
+  .veil{
+    position:absolute; inset:0;
+    background:
+      radial-gradient(circle at 50% 50%, rgba(0,0,0,0) 0%, rgba(0,0,0,0) 34%, rgba(11,13,14,0.72) 68%);
+    pointer-events:none;
+  }
+
+  .reticle{
+    position:relative;
+    width:min(64vw, 280px);
+    aspect-ratio:1/1;
+    z-index:2;
+  }
+  .reticle .corner{
+    position:absolute;
+    width:34px; height:34px;
+    border:3px solid var(--phosphor);
+    opacity:0.9;
+    transition:opacity .25s, border-color .25s;
+  }
+  .reticle .tl{top:0;left:0;border-right:0;border-bottom:0;border-radius:10px 0 0 0;}
+  .reticle .tr{top:0;right:0;border-left:0;border-bottom:0;border-radius:0 10px 0 0;}
+  .reticle .bl{bottom:0;left:0;border-right:0;border-top:0;border-radius:0 0 0 10px;}
+  .reticle .br{bottom:0;right:0;border-left:0;border-top:0;border-radius:0 0 10px 0;}
+
+  .scanline{
+    position:absolute;
+    left:6%; right:6%;
+    height:2px;
+    background:linear-gradient(90deg, transparent, var(--phosphor), transparent);
+    box-shadow:0 0 12px var(--phosphor-dim);
+    top:8%;
+    animation:sweep 2.6s cubic-bezier(.65,0,.35,1) infinite;
+  }
+  @keyframes sweep{
+    0%   { top:8%; opacity:0; }
+    8%   { opacity:1; }
+    50%  { top:88%; opacity:1; }
+    58%  { opacity:0; }
+    100% { top:8%; opacity:0; }
+  }
+
+  .reticle.found .corner{ border-color: var(--phosphor); opacity:1; }
+  .reticle.found .scanline{ animation:none; opacity:0; }
+
+  .hint{
+    position:absolute;
+    bottom:22px; left:0; right:0;
+    text-align:center;
+    z-index:3;
+    font-size:13.5px;
+    color:var(--slate);
+    padding:0 24px;
+  }
+
+  .permission-card{
+    position:absolute; inset:0;
+    display:none;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:18px;
+    text-align:center;
+    padding:0 34px;
+    z-index:6;
+    background:#0B0D0E;
+  }
+  .permission-card.show{ display:flex; }
+  .permission-card h2{
+    font-size:19px; font-weight:600; letter-spacing:-0.01em;
+  }
+  .permission-card p{
+    color:var(--slate); font-size:14px; line-height:1.55; max-width:280px;
+  }
+
+  /* ---------- Bottom controls ---------- */
+  .controls{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:16px;
+    padding:6px 20px 22px;
+  }
+  button{ font-family:inherit; cursor:pointer; border:none; background:none; color:inherit; }
+
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    font-size:14.5px;
+    font-weight:600;
+    padding:14px 22px;
+    border-radius:100px;
+    transition:transform .15s ease, background .2s ease, opacity .2s;
+  }
+  .btn:active{ transform:scale(0.96); }
+  .btn-primary{
+    background:var(--phosphor);
+    color:#08110C;
+  }
+  .btn-ghost{
+    background:rgba(255,255,255,0.05);
+    border:1px solid var(--line);
+    color:var(--paper);
+  }
+  .btn-upload{
+    width:52px; height:52px; padding:0;
+    border-radius:50%;
+    background:rgba(255,255,255,0.05);
+    border:1px solid var(--line);
+    flex:none;
+  }
+  .btn[disabled]{ opacity:.4; pointer-events:none; }
+
+  #file-input{ display:none; }
+
+  /* ---------- Bottom sheet modal ---------- */
+  .sheet-backdrop{
+    position:fixed; inset:0;
+    background:rgba(8,9,10,0.6);
+    backdrop-filter:blur(2px);
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .25s ease;
+    z-index:10;
+  }
+  .sheet-backdrop.open{ opacity:1; pointer-events:auto; }
+
+  .sheet{
+    position:fixed;
+    left:0; right:0; bottom:0;
+    z-index:11;
+    background:var(--ink-soft);
+    border:1px solid var(--line);
+    border-bottom:none;
+    border-radius:26px 26px 0 0;
+    padding:10px 22px calc(24px + var(--safe-b));
+    transform:translateY(100%);
+    transition:transform .32s cubic-bezier(.32,.72,0,1);
+    max-height:82vh;
+    overflow-y:auto;
+  }
+  .sheet-backdrop.open .sheet{ transform:translateY(0); }
+
+  .grabber{
+    width:38px; height:4px;
+    border-radius:4px;
+    background:var(--line);
+    margin:6px auto 18px;
+  }
+
+  .sheet-kind{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.02em;
+    color:var(--phosphor);
+    background:rgba(76,255,179,0.1);
+    border:1px solid rgba(76,255,179,0.25);
+    padding:5px 10px;
+    border-radius:100px;
+    margin-bottom:14px;
+  }
+  .sheet-kind.warn{
+    color:var(--amber);
+    background:rgba(255,180,84,0.1);
+    border-color:rgba(255,180,84,0.28);
+  }
+  .sheet-kind.plain{
+    color:var(--slate);
+    background:rgba(255,255,255,0.04);
+    border-color:var(--line);
+  }
+
+  .sheet h3{
+    font-size:15px;
+    font-weight:500;
+    color:var(--slate);
+    margin-bottom:6px;
+  }
+
+  .url-box{
+    font-family:'JetBrains Mono', monospace;
+    font-size:14px;
+    line-height:1.6;
+    word-break:break-all;
+    background:rgba(255,255,255,0.03);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:14px 16px;
+    color:var(--paper);
+    margin-bottom:8px;
+    max-height:160px;
+    overflow-y:auto;
+  }
+
+  .domain-row{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    color:var(--slate);
+    font-size:13px;
+    margin-bottom:22px;
+  }
+  .domain-row strong{ color:var(--paper); font-weight:600; }
+
+  .sheet-actions{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .sheet-actions .btn{ width:100%; padding:15px 22px; }
+
+  .row-actions{
+    display:flex;
+    gap:10px;
+    margin-top:2px;
+  }
+  .row-actions .btn{ flex:1; }
+
+  .copied-toast{
+    position:fixed;
+    left:50%;
+    bottom:calc(28px + var(--safe-b));
+    transform:translate(-50%, 12px);
+    background:var(--paper);
+    color:var(--ink);
+    font-size:13px;
+    font-weight:600;
+    padding:10px 18px;
+    border-radius:100px;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .2s, transform .2s;
+    z-index:20;
+  }
+  .copied-toast.show{ opacity:1; transform:translate(-50%, 0); }
+
+  @media (prefers-reduced-motion: reduce){
+    .scanline, .status-pill.live .dot{ animation:none !important; }
+  }
+
+  ::-webkit-scrollbar{ width:6px; }
+  ::-webkit-scrollbar-thumb{ background:var(--line); border-radius:10px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <span class="mark"><span class="tl"></span><span class="tr"></span><span class="bl"></span><span class="br"></span></span>
+    Lookout
+  </div>
+  <div class="status-pill" id="status-pill">
+    <span class="dot"></span>
+    <span id="status-text">Starting camera</span>
+  </div>
+</header>
+
+<div class="stage" id="stage">
+  <video id="video" playsinline muted autoplay></video>
+  <canvas id="frame"></canvas>
+  <div class="veil"></div>
+
+  <div class="reticle" id="reticle">
+    <div class="corner tl"></div>
+    <div class="corner tr"></div>
+    <div class="corner bl"></div>
+    <div class="corner br"></div>
+    <div class="scanline"></div>
+  </div>
+
+  <p class="hint" id="hint">Point the camera at a QR code</p>
+
+  <div class="permission-card" id="permission-card">
+    <h2>Camera access needed</h2>
+    <p id="permission-text">Lookout reads QR codes through your camera. Allow access, or drop in an image instead.</p>
+    <button class="btn btn-primary" id="retry-camera">Try again</button>
+  </div>
+</div>
+
+<div class="controls">
+  <button class="btn btn-upload" id="upload-btn" title="Scan from image" aria-label="Scan from image">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+      <path d="M12 16V4M12 4L7 9M12 4l5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M4 16v3a2 2 0 002 2h12a2 2 0 002-2v-3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </button>
+  <button class="btn btn-ghost" id="toggle-cam">Flip camera</button>
+  <input type="file" id="file-input" accept="image/*" />
+</div>
+
+<!-- Result sheet -->
+<div class="sheet-backdrop" id="sheet-backdrop">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+    <div class="grabber"></div>
+    <span class="sheet-kind" id="sheet-kind">LINK DETECTED</span>
+    <h3 id="sheet-title">This code points to</h3>
+    <div class="url-box" id="url-box">—</div>
+    <div class="domain-row" id="domain-row" style="display:none;">
+      Destination domain: <strong id="domain-text">—</strong>
+    </div>
+    <div class="sheet-actions">
+      <button class="btn btn-primary" id="open-link">Open link</button>
+      <div class="row-actions">
+        <button class="btn btn-ghost" id="copy-link">Copy URL</button>
+        <button class="btn btn-ghost" id="scan-again">Scan again</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="copied-toast" id="copied-toast">Copied to clipboard</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.js"></script>
+<script>
+(function(){
+  const video = document.getElementById('video');
+  const canvas = document.getElementById('frame');
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  const reticle = document.getElementById('reticle');
+  const hint = document.getElementById('hint');
+  const statusPill = document.getElementById('status-pill');
+  const statusText = document.getElementById('status-text');
+  const permissionCard = document.getElementById('permission-card');
+  const permissionText = document.getElementById('permission-text');
+  const retryBtn = document.getElementById('retry-camera');
+  const toggleCamBtn = document.getElementById('toggle-cam');
+  const uploadBtn = document.getElementById('upload-btn');
+  const fileInput = document.getElementById('file-input');
+
+  const sheetBackdrop = document.getElementById('sheet-backdrop');
+  const sheetKind = document.getElementById('sheet-kind');
+  const sheetTitle = document.getElementById('sheet-title');
+  const urlBox = document.getElementById('url-box');
+  const domainRow = document.getElementById('domain-row');
+  const domainText = document.getElementById('domain-text');
+  const openLinkBtn = document.getElementById('open-link');
+  const copyLinkBtn = document.getElementById('copy-link');
+  const scanAgainBtn = document.getElementById('scan-again');
+  const copiedToast = document.getElementById('copied-toast');
+
+  let stream = null;
+  let rafId = null;
+  let scanning = true;
+  let facingMode = 'environment';
+  let lastResult = '';
+
+  function setStatus(text, live){
+    statusText.textContent = text;
+    statusPill.classList.toggle('live', !!live);
+  }
+
+  async function startCamera(){
+    stopCamera();
+    permissionCard.classList.remove('show');
+    setStatus('Starting camera', false);
+    try{
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: facingMode }, width:{ ideal:1280 }, height:{ ideal:720 } },
+        audio:false
+      });
+      video.srcObject = stream;
+      await video.play();
+      setStatus('Live', true);
+      hint.textContent = 'Point the camera at a QR code';
+      scanning = true;
+      tick();
+    }catch(err){
+      setStatus('No camera', false);
+      permissionText.textContent = (err && err.name === 'NotAllowedError')
+        ? 'Camera access was denied. Enable it in your browser settings, or scan from an image instead.'
+        : 'No camera could be reached. You can still scan from an image.';
+      permissionCard.classList.add('show');
+    }
+  }
+
+  function stopCamera(){
+    if(rafId) cancelAnimationFrame(rafId);
+    if(stream){ stream.getTracks().forEach(t=>t.stop()); stream = null; }
+  }
+
+  function tick(){
+    if(!scanning) return;
+    if(video.readyState === video.HAVE_ENOUGH_DATA){
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts:'dontInvert' });
+      if(code && code.data){
+        handleResult(code.data);
+        return;
+      }
+    }
+    rafId = requestAnimationFrame(tick);
+  }
+
+  function handleResult(data){
+    if(!data || data === lastResult && sheetBackdrop.classList.contains('open')) return;
+    lastResult = data;
+    scanning = false;
+    reticle.classList.add('found');
+    if(navigator.vibrate) navigator.vibrate(40);
+    setTimeout(()=> showSheet(data), 180);
+  }
+
+  function classify(data){
+    try{
+      const url = new URL(data);
+      const isHttp = url.protocol === 'http:' || url.protocol === 'https:';
+      return { isUrl:isHttp, url: isHttp ? url : null };
+    }catch(e){
+      return { isUrl:false, url:null };
+    }
+  }
+
+  function showSheet(data){
+    const { isUrl, url } = classify(data);
+    urlBox.textContent = data;
+
+    if(isUrl){
+      sheetKind.textContent = url.protocol === 'https:' ? 'SECURE LINK' : 'UNSECURED LINK';
+      sheetKind.className = 'sheet-kind' + (url.protocol === 'https:' ? '' : ' warn');
+      sheetTitle.textContent = 'This code points to';
+      domainRow.style.display = 'flex';
+      domainText.textContent = url.hostname;
+      openLinkBtn.style.display = 'inline-flex';
+      openLinkBtn.textContent = 'Open link';
+    }else{
+      sheetKind.textContent = 'TEXT CONTENT';
+      sheetKind.className = 'sheet-kind plain';
+      sheetTitle.textContent = 'This code contains';
+      domainRow.style.display = 'none';
+      openLinkBtn.style.display = 'none';
+    }
+
+    sheetBackdrop.classList.add('open');
+  }
+
+  function closeSheet(){
+    sheetBackdrop.classList.remove('open');
+    setTimeout(()=>{
+      reticle.classList.remove('found');
+      scanning = true;
+      tick();
+    }, 280);
+  }
+
+  openLinkBtn.addEventListener('click', ()=>{
+    window.open(lastResult, '_blank', 'noopener,noreferrer');
+  });
+
+  copyLinkBtn.addEventListener('click', async ()=>{
+    try{
+      await navigator.clipboard.writeText(lastResult);
+    }catch(e){
+      const ta = document.createElement('textarea');
+      ta.value = lastResult; document.body.appendChild(ta); ta.select();
+      document.execCommand('copy'); document.body.removeChild(ta);
+    }
+    copiedToast.classList.add('show');
+    setTimeout(()=> copiedToast.classList.remove('show'), 1500);
+  });
+
+  scanAgainBtn.addEventListener('click', closeSheet);
+  sheetBackdrop.addEventListener('click', (e)=>{ if(e.target === sheetBackdrop) closeSheet(); });
+
+  retryBtn.addEventListener('click', startCamera);
+
+  toggleCamBtn.addEventListener('click', ()=>{
+    facingMode = (facingMode === 'environment') ? 'user' : 'environment';
+    startCamera();
+  });
+
+  uploadBtn.addEventListener('click', ()=> fileInput.click());
+  fileInput.addEventListener('change', (e)=>{
+    const file = e.target.files[0];
+    if(!file) return;
+    const img = new Image();
+    img.onload = ()=>{
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx.drawImage(img, 0, 0);
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const code = jsQR(imageData.data, imageData.width, imageData.height);
+      if(code && code.data){
+        handleResult(code.data);
+      }else{
+        hint.textContent = "Couldn't find a QR code in that image";
+        setTimeout(()=> hint.textContent = 'Point the camera at a QR code', 2200);
+      }
+    };
+    img.src = URL.createObjectURL(file);
+    fileInput.value = '';
+  });
+
+  document.addEventListener('visibilitychange', ()=>{
+    if(document.hidden){ stopCamera(); }
+    else if(!sheetBackdrop.classList.contains('open')){ startCamera(); }
+  });
+
+  if('serviceWorker' in navigator){
+    window.addEventListener('load', ()=>{
+      try{
+        const swSource = atob('Y29uc3QgQ0FDSEUgPSAnbG9va291dC12MSc7CgpzZWxmLmFkZEV2ZW50TGlzdGVuZXIoJ2luc3RhbGwnLCAoKSA9PiB7IHNlbGYuc2tpcFdhaXRpbmcoKTsgfSk7CnNlbGYuYWRkRXZlbnRMaXN0ZW5lcignYWN0aXZhdGUnLCAoZXZlbnQpID0+IHsKICBldmVudC53YWl0VW50aWwoCiAgICBjYWNoZXMua2V5cygpLnRoZW4oKGtleXMpID0+IFByb21pc2UuYWxsKGtleXMuZmlsdGVyKGsgPT4gayAhPT0gQ0FDSEUpLm1hcChrID0+IGNhY2hlcy5kZWxldGUoaykpKSkKICApOwogIHNlbGYuY2xpZW50cy5jbGFpbSgpOwp9KTsKCi8vIFNpbmdsZS1maWxlIGFwcDogY2FjaGUgdGhlIHBhZ2UgaXRzZWxmIHNvIGl0IHN0aWxsIG9wZW5zIG9mZmxpbmUsIGFuZAovLyBsZWF2ZSBldmVyeSBjcm9zcy1vcmlnaW4gcmVxdWVzdCAoY2FtZXJhIHN0cmVhbSwgQ0ROIHNjcmlwdCkgdW50b3VjaGVkLgpzZWxmLmFkZEV2ZW50TGlzdGVuZXIoJ2ZldGNoJywgKGV2ZW50KSA9PiB7CiAgY29uc3QgcmVxID0gZXZlbnQucmVxdWVzdDsKICBjb25zdCB1cmwgPSBuZXcgVVJMKHJlcS51cmwpOwogIGlmICh1cmwub3JpZ2luICE9PSBzZWxmLmxvY2F0aW9uLm9yaWdpbikgcmV0dXJuOwoKICBpZiAocmVxLm1vZGUgPT09ICduYXZpZ2F0ZScpIHsKICAgIGV2ZW50LnJlc3BvbmRXaXRoKAogICAgICBmZXRjaChyZXEpCiAgICAgICAgLnRoZW4oKHJlcykgPT4gewogICAgICAgICAgY29uc3QgY29weSA9IHJlcy5jbG9uZSgpOwogICAgICAgICAgY2FjaGVzLm9wZW4oQ0FDSEUpLnRoZW4oKGNhY2hlKSA9PiBjYWNoZS5wdXQocmVxLCBjb3B5KSk7CiAgICAgICAgICByZXR1cm4gcmVzOwogICAgICAgIH0pCiAgICAgICAgLmNhdGNoKCgpID0+IGNhY2hlcy5tYXRjaChyZXEpLnRoZW4oKGMpID0+IGMgfHwgY2FjaGVzLm1hdGNoKCcuJykpKQogICAgKTsKICAgIHJldHVybjsKICB9CgogIGV2ZW50LnJlc3BvbmRXaXRoKAogICAgY2FjaGVzLm1hdGNoKHJlcSkudGhlbigoY2FjaGVkKSA9PiBjYWNoZWQgfHwgZmV0Y2gocmVxKS50aGVuKChyZXMpID0+IHsKICAgICAgY29uc3QgY29weSA9IHJlcy5jbG9uZSgpOwogICAgICBjYWNoZXMub3BlbihDQUNIRSkudGhlbigoY2FjaGUpID0+IGNhY2hlLnB1dChyZXEsIGNvcHkpKTsKICAgICAgcmV0dXJuIHJlczsKICAgIH0pLmNhdGNoKCgpID0+IGNhY2hlZCkpCiAgKTsKfSk7Cg==');
+        const blob = new Blob([swSource], { type:'application/javascript' });
+        const swUrl = URL.createObjectURL(blob);
+        navigator.serviceWorker.register(swUrl, { scope: './' }).catch(()=>{});
+      }catch(e){ /* service worker is a progressive enhancement, safe to skip */ }
+    });
+  }
+
+  startCamera();
+})();
+</script>
+</body>
+</html>
